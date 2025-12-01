@@ -27,6 +27,8 @@ namespace CarManagementSystem1.Data
             base.OnModelCreating(builder);
 
             builder.ApplyConfiguration(new ColourSeed());
+            builder.ApplyConfiguration(new MakeSeed());
+            builder.ApplyConfiguration(new ModelSeed());
         }
     }
 }
