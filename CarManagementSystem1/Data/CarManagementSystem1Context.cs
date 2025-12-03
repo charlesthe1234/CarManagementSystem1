@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CarManagementSystem1.Configuration.Entities;
+using CarManagementSystem1.Data;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using CarManagementSystem1.Domain;
-using CarManagementSystem1.Configuration.Entities;
 
 namespace CarManagementSystem1.Data
 {
-    public class CarManagementSystem1Context : DbContext
+    public class CarManagementSystem1Context(DbContextOptions<CarManagementSystem1Context> options) : IdentityDbContext<CarManagementSystem1User>(options)
     {
-        public CarManagementSystem1Context (DbContextOptions<CarManagementSystem1Context> options)
-            : base(options)
-        {
-        }
-
         public DbSet<CarManagementSystem1.Domain.Make> Make { get; set; } = default!;
         public DbSet<CarManagementSystem1.Domain.Model> Model { get; set; } = default!;
         public DbSet<CarManagementSystem1.Domain.Colour> Colour { get; set; } = default!;
