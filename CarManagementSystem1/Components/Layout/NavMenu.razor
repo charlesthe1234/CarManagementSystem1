@@ -23,6 +23,7 @@
                         <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
                     </NavLink>
                 </div>
+                <AuthorizeView Roles ="Administrator" Context="innerContext">
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="makes">
                         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Makes
@@ -43,6 +44,7 @@
                         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Vehicles
                     </NavLink>
                 </div>
+                </AuthorizeView>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="customers">
                         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Cusotmers

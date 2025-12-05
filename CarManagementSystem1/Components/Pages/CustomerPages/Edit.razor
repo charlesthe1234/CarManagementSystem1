@@ -42,22 +42,22 @@ else
                     <InputText id="emailaddress" @bind-Value="Customer.EmailAddress" class="form-control" />
                     <ValidationMessage For="() => Customer.EmailAddress" class="text-danger" />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label for="datecreated" class="form-label">DateCreated:</label>
                     <InputDate id="datecreated" @bind-Value="Customer.DateCreated" class="form-control" />
                     <ValidationMessage For="() => Customer.DateCreated" class="text-danger" />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label for="dateupdated" class="form-label">DateUpdated:</label>
                     <InputDate id="dateupdated" @bind-Value="Customer.DateUpdated" class="form-control" />
                     <ValidationMessage For="() => Customer.DateUpdated" class="text-danger" />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label for="createdby" class="form-label">CreatedBy:</label>
                     <InputText id="createdby" @bind-Value="Customer.CreatedBy" class="form-control" />
                     <ValidationMessage For="() => Customer.CreatedBy" class="text-danger" />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label for="updatedby" class="form-label">UpdatedBy:</label>
                     <InputText id="updatedby" @bind-Value="Customer.UpdatedBy" class="form-control" />
                     <ValidationMessage For="() => Customer.UpdatedBy" class="text-danger" />
@@ -79,8 +79,21 @@ else
     [SupplyParameterFromForm]
     private Customer? Customer { get; set; }
 
+    //Create userId string to store the user id, default value is "System".
+    private string userId = "System";
+    //Inject the AuthenticationStateProvider to get the user id.
+    @inject AuthenticationStateProvider authenticationStateProvider
     protected override async Task OnInitializedAsync()
     {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        // Get the userId claim
+        var userIdClaim = user.FindFirst("userId");
+        if (userIdClaim != null)
+        {
+            userId = userIdClaim.Value;
+        }
+
         using var context = DbFactory.CreateDbContext();
         Customer ??= await context.Customer.FirstOrDefaultAsync(m => m.Id == Id);
 
@@ -95,6 +108,13 @@ else
     private async Task UpdateCustomer()
     {
         using var context = DbFactory.CreateDbContext();
+
+        //Set the userIdto the UpdatedByfields.
+        Customer.UpdatedBy= userId;
+ 
+        //Set the DateUpdatedfields to the current date and time.
+        Customer.DateUpdated= DateTime.Now;
+
         context.Attach(Customer!).State = EntityState.Modified;
 
         try
