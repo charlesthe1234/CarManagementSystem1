@@ -1,4 +1,5 @@
 ﻿@page "/bookings/create"
+@using CarManagementSystem1.Data
 @using Microsoft.EntityFrameworkCore
 @using CarManagementSystem1.Domain
 @inject IDbContextFactory<CarManagementSystem1.Data.CarManagementSystem1Context> DbFactory
@@ -65,13 +66,66 @@
 </div>
 
 @code {
-    [SupplyParameterFromForm]
-    private Booking Booking { get; set; } = new();
-
-    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+[SupplyParameterFromForm]
+private Booking Booking { get; set; } = new Booking
+{
+//Set the default values for the DateOut and DateIn fields.
+DateOur = DateTime.Now,
+DateIn = DateTime.Now.AddDays(1)
+};
+//Declare and initialize CarRentalManagementContext, IList and Dictionaries
+private CarManagementSystem1Context context = default!;
+private IList<Vehicle> Vehicles;
+private IList<Customer> Customers;
+private Dictionary<int, Make> MakesDict = new Dictionary<int, Make>();
+private Dictionary<int, Model> ModelsDict = new Dictionary<int, Model>();
+private Dictionary<int, Colour> ColoursDict = new Dictionary<int, Colour>();
+//Create userId string to store the user id, default value is "System".
+private string userId = "System";
+//Create isAdmin boolean to store the user role, default value is false.
+private bool isAdmin = false;
+//Inject the AuthenticationStateProvider to get the user id.
+@inject AuthenticationStateProvider authenticationStateProvider
+//Override the OnInitialized method to get the user id and all the entities.
+protected override async void OnInitialized()
+{
+// Retrieve authentication state and user information
+var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+var user = authState.User;
+// Get the userId claim
+var userIdClaim = user.FindFirst("userId");
+if (userIdClaim != null)
+{
+userId = userIdClaim.Value;
+}
+// Check if the user is authenticated and is an administrator
+if (user.Identity != null && user.Identity.IsAuthenticated)
+{
+isAdmin = user.IsInRole("Administrator");
+}
+// Initialize the DbContext
+    context = DbFactory.CreateDbContext();
+        //Load data from the database
+        Vehicles = context.Vehicle.ToList();
+        //Get all the customers created by the user or all customers if the user is an administrator
+        Customers = context.Customer.Where(c => c.CreatedBy == userId).ToList();
+        if (isAdmin)
+        {
+            Customers = context.Customer.ToList();
+        }
+        MakesDict = context.Make.ToDictionary(o => o.Id, o => o);
+        ModelsDict = context.Model.ToDictionary(o => o.Id, o => o);
+        ColoursDict = context.Colour.ToDictionary(o => o.Id, o => o);
+    }
     private async Task AddBooking()
     {
         using var context = DbFactory.CreateDbContext();
+        //Set the userId to the CreatedBy and UpdatedBy fields.
+        Booking.CreatedBy = userId;
+        Booking.UpdatedBy = userId;
+        //Set the DateCreated and DateUpdated fields to the current date and time.
+        Booking.DateCreated = DateTime.Now;
+        Booking.DateUpdated = DateTime.Now;
         context.Booking.Add(Booking);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/bookings");
