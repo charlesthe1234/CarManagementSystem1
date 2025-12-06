@@ -26,16 +26,20 @@
                 <InputDate id="datein" @bind-Value="Booking.DateIn" class="form-control" /> 
                 <ValidationMessage For="() => Booking.DateIn" class="text-danger" /> 
             </div>        
-            <div class="mb-3">
-                <label for="vehicleid" class="form-label">VehicleId:</label> 
-                <InputNumber id="vehicleid" @bind-Value="Booking.VehicleId" class="form-control" /> 
-                <ValidationMessage For="() => Booking.VehicleId" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="customerid" class="form-label">CustomerId:</label> 
-                <InputNumber id="customerid" @bind-Value="Booking.CustomerId" class="form-control" /> 
-                <ValidationMessage For="() => Booking.CustomerId" class="text-danger" /> 
-            </div>        
+            <label for="vehicleid" class="form-label">Vehicle:</label>
+            <InputSelect id="vehicleId" @bind-Value="Booking.VehicleId" class="form-control">
+                <option value="">-- Select Vehicle --</option>
+                @if (Vehicles != null)
+                {
+                    foreach (var vehicle in Vehicles)
+                    {
+                        <option value="@vehicle.Id">
+                            @MakesDict[vehicle.MakeId].Name -
+                            @ModelsDict[vehicle.ModelId].Name - @ColoursDict[vehicle.ColourId].Name
+                        </option>
+                    }
+                }
+            </InputSelect>
             <div class="mb-3">
                 <label for="datecreated" class="form-label">DateCreated:</label> 
                 <InputDate id="datecreated" @bind-Value="Booking.DateCreated" class="form-control" /> 
